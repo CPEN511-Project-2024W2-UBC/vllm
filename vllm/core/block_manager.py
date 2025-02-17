@@ -11,6 +11,7 @@ from vllm.core.block.prefix_caching_block import (ComputedBlocksTracker,
                                                   LastAccessBlocksTracker)
 from vllm.core.block.utils import check_no_caching_or_swa_for_blockmgr_encdec
 from vllm.core.interfaces import AllocStatus, BlockSpaceManager
+from vllm.cpen511.swap_trace_logger import SwapTraceLogger
 from vllm.sequence import Sequence, SequenceGroup, SequenceStatus
 from vllm.utils import Device
 
@@ -388,10 +389,11 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                     Device.GPU, gpu_block_id)
                 for cpu_block_id, gpu_block_id in seq_swap_mapping.items()
             }
-
             physical_block_id_mapping.extend(
                 list(seq_physical_block_id_mapping.items()))
-
+            SwapTraceLogger.get_instance().log_swap(
+                seq.seq_id, seq_physical_block_id_mapping)
+    
         return physical_block_id_mapping
 
     def can_swap_out(self, seq_group: SequenceGroup) -> bool:
