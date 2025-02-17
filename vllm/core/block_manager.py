@@ -71,7 +71,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
         self.block_size = block_size
         self.num_total_gpu_blocks = num_gpu_blocks
         self.num_total_cpu_blocks = num_cpu_blocks
-
+        print("num_gpu_blocks: -----------------------------------", num_gpu_blocks)
         self.sliding_window = sliding_window
         # max_block_sliding_window is the max number of blocks that need to be
         # allocated
@@ -370,6 +370,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                 to GPU.
         """
         physical_block_id_mapping = []
+        print("swap in -----------------------")
         for seq in seq_group.get_seqs(status=SequenceStatus.SWAPPED):
             blocks = self.block_tables[seq.seq_id].blocks
             if len(blocks) == 0:
