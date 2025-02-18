@@ -3,16 +3,13 @@ from vllm.cpen511.swap_trace_logger import SwapTraceLogger
 
 # Sample prompts.
 prompts = [
-    "Hello, my name is",
-    "The president of the United States is",
-    "The capital of France is",
-    "The future of AI is",
+    "The future of AI is still uncertain, but let's think about the future of AI in this problem. We are given a sequence of integers, and we need to compute the probability that a particular AI model will successfully complete a task in the future given that it has successfully completed the task in the past. The probability is defined as the expected value of a function f, which is the expected value over all possible task sequences. We have to compute the probability that the AI will successfully complete a task in the future given that it has succeeded in the past. The probability is given by the formula P(future | past) = P(future and past) / P(past).  The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that it has succeeded in the past is given by the formula P(future | past) = P(future and past) / P(past). The probability that the AI will successfully complete a task in the future given that", 
 ]
 # Create a sampling params object.
 sampling_params = SamplingParams(temperature=0.8, top_p=0.95)
 
 # Create an LLM.
-llm = LLM(model="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", swap_space=10, max_seq_len_to_capture=1000)
+llm = LLM(model="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", gpu_memory_utilization=0.3, max_model_len=300)
 # Generate texts from the prompts. The output is a list of RequestOutput objects
 # that contain the prompt, generated text, and other information.
 outputs = llm.generate(prompts, sampling_params)

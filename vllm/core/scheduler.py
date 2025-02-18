@@ -1254,7 +1254,7 @@ class Scheduler:
             return self._schedule_chunked_prefill()
         else:
             return self._schedule_default()
-
+    # important-- this is function that is used to determine whether or not we have enough space in the KV cache to continue generation of the sequence group
     def _can_append_slots(self, seq_group: SequenceGroup,
                           enable_chunking: bool) -> bool:
         """Determine whether or not we have enough space in the KV cache to
