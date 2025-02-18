@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 import torch
 import torch.library
 
+from vllm.cpen511.swap_trace_logger import SwapTraceLogger
 import vllm.envs as envs
 from vllm.logger import init_logger
 from vllm.platforms import current_platform
@@ -1039,6 +1040,7 @@ def copy_blocks(key_caches: List[torch.Tensor],
 
 def swap_blocks(src: torch.Tensor, dst: torch.Tensor,
                 block_mapping: torch.Tensor) -> None:
+    SwapTraceLogger.get_instance().log_swap(src, dst, block_mapping)
     torch.ops._C_cache_ops.swap_blocks(src, dst, block_mapping)
 
 

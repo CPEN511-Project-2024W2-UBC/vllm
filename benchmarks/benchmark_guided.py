@@ -387,7 +387,7 @@ def main(args: argparse.Namespace):
                            args.disable_frontend_multiprocessing))
     else:
         engine_args = EngineArgs.from_cli_args(args)
-        elapsed_time, ret = run_vllm(requests, engine_args, args.n,
+        elapsed_time, ret = run_vllm(requests, engine_args, ar1gs.n,
                                      args.guided_decoding_ratio, args.warmup)
         first_latency, next_latency = None, None
 
