@@ -24,7 +24,7 @@ class SwapTraceLogger():
     # public method to log swap
     def log_swap(self, gpu_ptr, cpu_ptr,  mapping):
         self.__swap_trace.append((cpu_ptr, gpu_ptr))
-        self.__logger.info('swap: cpu_block_id: %d, gpu_block_id: %d, mapping %d -> %d' % (cpu_ptr, gpu_ptr, mapping[0], mapping[1]))
+        # self.__logger.info('swap: cpu_block_id: %d, gpu_block_id: %d, mapping %d -> %d' % (cpu_ptr, gpu_ptr, mapping[0], mapping[1]))
         
     # public method to get swap trace
     def get_swap_trace(self):
