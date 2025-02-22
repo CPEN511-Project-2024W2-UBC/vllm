@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from vllm.core.block.common import BlockList
 from vllm.core.block.interfaces import Block, DeviceAwareBlockAllocator
+from vllm.cpen511.swap_trace_logger import SwapTraceLogger
 from vllm.utils import Device, cdiv, chunk_list
 
 
@@ -313,6 +314,7 @@ class BlockTable:
 
             blocks.append(block)
 
+        SwapTraceLogger.get_instance().log_allocate(blocks, token_ids)
         return blocks
 
     def _get_all_token_ids(self) -> List[int]:

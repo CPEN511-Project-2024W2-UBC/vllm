@@ -370,7 +370,6 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                 to GPU.
         """
         physical_block_id_mapping = []
-        print("swap in -----------------------")
         for seq in seq_group.get_seqs(status=SequenceStatus.SWAPPED):
             blocks = self.block_tables[seq.seq_id].blocks
             if len(blocks) == 0:
@@ -393,7 +392,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
             physical_block_id_mapping.extend(
                 list(seq_physical_block_id_mapping.items()))
             SwapTraceLogger.get_instance().log_swap(
-                seq.seq_id, seq_physical_block_id_mapping)
+               [list(seq_physical_block_id_mapping.keys()),list(seq_physical_block_id_mapping.values())], is_gpu_to_cpu=False)
     
         return physical_block_id_mapping
 
@@ -447,7 +446,8 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
 
             physical_block_id_mapping.extend(
                 list(seq_physical_block_id_mapping.items()))
-
+            SwapTraceLogger.get_instance().log_swap(
+                [list(seq_physical_block_id_mapping.keys()),list(seq_physical_block_id_mapping.values())], is_gpu_to_cpu=True)
         return physical_block_id_mapping
 
     def get_num_free_gpu_blocks(self) -> int:

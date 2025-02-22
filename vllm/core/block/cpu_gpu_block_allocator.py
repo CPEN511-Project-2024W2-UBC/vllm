@@ -6,6 +6,7 @@ from vllm.core.block.interfaces import (Block, BlockAllocator, BlockId,
                                         DeviceAwareBlockAllocator)
 from vllm.core.block.naive_block import NaiveBlock, NaiveBlockAllocator
 from vllm.core.block.prefix_caching_block import PrefixCachingBlockAllocator
+from vllm.cpen511.swap_trace_logger import SwapTraceLogger
 from vllm.platforms import current_platform
 from vllm.utils import Device
 
@@ -207,6 +208,7 @@ class CpuGpuBlockAllocator(DeviceAwareBlockAllocator):
         assert block_id is not None
         allocator = self._block_ids_to_allocator[block_id]
         allocator.free(block)
+        SwapTraceLogger.get_instance().log_free(block_id)
 
     def fork(self, last_block: Block) -> List[Block]:
         """Creates a new sequence of blocks that shares the same underlying

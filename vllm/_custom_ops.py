@@ -1040,7 +1040,6 @@ def copy_blocks(key_caches: List[torch.Tensor],
 
 def swap_blocks(src: torch.Tensor, dst: torch.Tensor,
                 block_mapping: torch.Tensor) -> None:
-    SwapTraceLogger.get_instance().log_swap(src.data_ptr(), dst.data_ptr(), block_mapping)
     torch.ops._C_cache_ops.swap_blocks(src, dst, block_mapping)
 
 
