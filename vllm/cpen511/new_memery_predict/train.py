@@ -11,7 +11,7 @@ from model import (EarlyStopping, LstmMemoryPredict, MlpMemoryPredict,
                    MlpMemoryPredictClassification)
 from util import onehot_to_sequence, sequence_to_onehot
 
-window_size = 5
+window_size = 3
 mod = 100
 data_file_path = os.path.dirname(os.path.abspath(__file__)) + "/../data/pure_sequence.csv"
 output_log = os.path.dirname(os.path.abspath(__file__)) + "/../data/output.txt"
@@ -81,7 +81,7 @@ for epoch in range(50):
 def get_most_signficant_digit(input, output):
     # Get the most significant digit from the model
     # input: [batch_size, windows_size]
-    most_sig = torch.round(input/mod)
+    most_sig = torch.floor(input/mod)
     
     # get mode from input
     mode, count = torch.mode(most_sig)
@@ -105,6 +105,6 @@ with torch.no_grad():
         test_loss += loss.item()
         total += label.size(0)
         correct += (torch.round(outputs) == label).sum().item()
-        print(f"Output: {outputs.tolist()}, Label: {(label).tolist()}, correct: {correct}, total: {total}")
+        print(f"Input: {inputs.tolist()} Output: {outputs.tolist()}, Label: {(label).tolist()}, correct: {correct}, total: {total}")
 print(f"Test Loss: {test_loss / len(test_loader)}, Accuracy: {(correct / total) * 100}%")
 
