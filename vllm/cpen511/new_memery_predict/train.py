@@ -1,10 +1,12 @@
 
 import os
+import re
 import sys
 
 import torch
 import torch.optim as optim
 from dataloader import SequenceDataset, SequenceDatasetOneHot
+from gguf import model_weight_count_rounded_notation
 from model import (EarlyStopping, LstmMemoryPredict, MlpMemoryPredict,
                    MlpMemoryPredictClassification)
 from util import onehot_to_sequence, sequence_to_onehot
@@ -15,8 +17,8 @@ data_file_path = os.path.dirname(os.path.abspath(__file__)) + "/../data/pure_seq
 output_log = os.path.dirname(os.path.abspath(__file__)) + "/../data/output.txt"
 
 # Redirect output
-result_output = open(output_log, "w", buffering=1)
-sys.stdout = result_output
+# result_output = open(output_log, "w", buffering=1)
+# sys.stdout = result_output
 
 
 # Split into train and test
@@ -44,7 +46,7 @@ def loss_fn(input, outputs, labels):
     return criterion(diff_out, diff_label)
     
 # Train the model
-for epoch in range(30):
+for epoch in range(50):
     model.train()
     early_stopping = EarlyStopping(patience=3)
     for inputs, label, input_onehot, label_onehot in train_loader:
@@ -76,6 +78,18 @@ for epoch in range(30):
             print("Early stopping")
             break
 
+def get_most_signficant_digit(input, output):
+    # Get the most significant digit from the model
+    # input: [batch_size, windows_size]
+    most_sig = torch.round(input/mod)
+    
+    # get mode from input
+    mode, count = torch.mode(most_sig)
+    mul_most_sig = mode * mod
+    # get the most significant digit from output
+        
+    
+    return  mul_most_sig + output
     
 # Testing
 model.eval()
@@ -87,9 +101,10 @@ with torch.no_grad():
         outputs = model(input_onehot)
         loss = criterion(outputs, label_onehot)
         outputs = onehot_to_sequence(outputs)
+        outputs = get_most_signficant_digit(inputs, outputs)
         test_loss += loss.item()
         total += label.size(0)
-        correct += (torch.round(outputs) == label%mod).sum().item()
-        print(f"Output: {outputs.tolist()}, Label: {(label%mod).tolist()}, correct: {correct}, total: {total}")
+        correct += (torch.round(outputs) == label).sum().item()
+        print(f"Output: {outputs.tolist()}, Label: {(label).tolist()}, correct: {correct}, total: {total}")
 print(f"Test Loss: {test_loss / len(test_loader)}, Accuracy: {(correct / total) * 100}%")
 
