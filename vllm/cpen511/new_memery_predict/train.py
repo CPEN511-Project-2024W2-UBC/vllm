@@ -82,13 +82,8 @@ def get_most_signficant_digit(input, output):
     # Get the most significant digit from the model
     # input: [batch_size, windows_size]
     most_sig = torch.floor(input/mod)
-    
-    # get mode from input
     mode, count = torch.mode(most_sig)
     mul_most_sig = mode * mod
-    # get the most significant digit from output
-        
-    
     return  mul_most_sig + output
     
 # Testing
