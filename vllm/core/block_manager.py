@@ -13,6 +13,10 @@ from vllm.core.block.utils import check_no_caching_or_swa_for_blockmgr_encdec
 from vllm.core.interfaces import AllocStatus, BlockSpaceManager
 from vllm.sequence import Sequence, SequenceGroup, SequenceStatus
 from vllm.utils import Device
+from vllm.core.logger import logger
+
+from .cpen511_optimize import *
+from math import ceil
 
 SeqId = int
 EncoderSeqId = str
@@ -140,7 +144,8 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
         if (self.num_total_gpu_blocks - num_required_blocks
                 < self.watermark_blocks):
             return AllocStatus.NEVER
-        if num_free_gpu_blocks - num_required_blocks >= self.watermark_blocks:
+        if num_free_gpu_blocks - num_required_blocks - leave_free_blocks() >= self.watermark_blocks:
+        # if num_free_gpu_blocks - num_required_blocks >= self.watermark_blocks:
             return AllocStatus.OK
         else:
             return AllocStatus.LATER
@@ -158,6 +163,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
 
             # Add blocks to the block table only if the sequence is non empty.
             block_table.allocate(token_ids=seq.get_token_ids(),
+                                 seq=seq,
                                  extra_hash=extra_hash)
 
         return block_table
@@ -202,6 +208,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
             assert encoder_seq is not None
             block_table = self._allocate_sequence(encoder_seq)
             self.cross_block_tables[request_id] = block_table
+        
 
     def can_append_slots(self, seq_group: SequenceGroup,
                          num_lookahead_slots: int) -> bool:
@@ -240,7 +247,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
 
         block_table = self.block_tables[seq.seq_id]
 
-        block_table.append_token_ids(
+        new_block_ids = block_table.append_token_ids(
             token_ids=block_table.get_unseen_token_ids(seq.get_token_ids()),
             num_lookahead_slots=num_lookahead_slots,
             num_computed_slots=seq.data.get_num_computed_tokens(),
@@ -248,6 +255,12 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
         )
         # Return any new copy-on-writes.
         new_cows = self.block_allocator.clear_copy_on_writes()
+        
+        if len(new_cows) > 0:
+            logger.debug(f"Appended slots (COW) for sequence {seq.seq_id}")
+            
+        if len(new_block_ids) > 0:
+            logger.debug(f"Appended slots for sequence {seq.seq_id} at {new_block_ids}")
         return new_cows
 
     def free(self, seq: Sequence) -> None:
@@ -266,8 +279,13 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
         self._computed_blocks_tracker.remove_seq(seq_id)
 
         # Free table/blocks
-        self.block_tables[seq_id].free()
+        block_ids = self.block_tables[seq_id].free()
         del self.block_tables[seq_id]
+        
+        # log the freeing with the logger
+        logger.debug(f"Freed block for sequence {seq_id} at {block_ids}")
+        add_size(len(block_ids))
+        decrement_sequence_count(0) # no swap out blocks for freeing
 
     def free_cross(self, seq_group: SequenceGroup) -> None:
         request_id = seq_group.request_id
@@ -369,6 +387,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                 to GPU.
         """
         physical_block_id_mapping = []
+        seq_ids = [seq.seq_id for seq in seq_group.get_seqs()]
         for seq in seq_group.get_seqs(status=SequenceStatus.SWAPPED):
             blocks = self.block_tables[seq.seq_id].blocks
             if len(blocks) == 0:
@@ -391,6 +410,12 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
 
             physical_block_id_mapping.extend(
                 list(seq_physical_block_id_mapping.items()))
+            
+            # log the swapping with the logger
+        cpu_locations = [physical_block_id_mapping[i][0] for i in range(len(physical_block_id_mapping))]
+        gpu_locations = [physical_block_id_mapping[i][1] for i in range(len(physical_block_id_mapping))]
+        logger.debug(f"Swapped in blocks for sequences {seq_ids} from CPU {cpu_locations} to GPU {gpu_locations}")
+        increment_sequence_count(seq.n_blocks)
 
         return physical_block_id_mapping
 
@@ -422,6 +447,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                 GPU to CPU.
         """
         physical_block_id_mapping = []
+        seq_ids = [seq.seq_id for seq in seq_group.get_seqs()]
         for seq in seq_group.get_seqs(status=SequenceStatus.RUNNING):
             blocks = self.block_tables[seq.seq_id].blocks
             if len(blocks) == 0:
@@ -444,6 +470,12 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
 
             physical_block_id_mapping.extend(
                 list(seq_physical_block_id_mapping.items()))
+            
+        # log the swapping with the logger
+        gpu_locations = [physical_block_id_mapping[i][0] for i in range(len(physical_block_id_mapping))]
+        cpu_locations = [physical_block_id_mapping[i][1] for i in range(len(physical_block_id_mapping))]
+        logger.debug(f"Swapped out blocks for sequences {seq_ids} from GPU {gpu_locations} to CPU {cpu_locations}")
+        decrement_sequence_count(seq.n_blocks)
 
         return physical_block_id_mapping
 
@@ -508,7 +540,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                 device) < num_blocks_touched:
             return AllocStatus.NEVER
         elif self.block_allocator.get_num_free_blocks(
-                device) - num_blocks_touched >= watermark_blocks:
+                device) - num_blocks_touched - leave_free_blocks() >= watermark_blocks:
             return AllocStatus.OK
         else:
             return AllocStatus.LATER

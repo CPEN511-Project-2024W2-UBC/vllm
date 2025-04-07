@@ -12,6 +12,9 @@ from vllm.logger import init_logger
 from vllm.platforms import current_platform
 from vllm.scalar_type import ScalarType
 
+
+from vllm.core.logger import logger as core_logger
+
 logger = init_logger(__name__)
 
 if not current_platform.is_tpu() and not current_platform.is_hpu():
