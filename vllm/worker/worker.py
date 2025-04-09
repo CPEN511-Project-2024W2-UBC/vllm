@@ -272,6 +272,9 @@ class Worker(LocalOrDistributedWorkerBase):
             f.write(f'num_gpu_blocks: {num_gpu_blocks}, num_cpu_blocks: {num_cpu_blocks}\n')
             f.write(f'available_kv_cache_memory: {available_kv_cache_memory}\n')
             f.write(f'cache_block_size: {cache_block_size}\n')
+            
+        from vllm.core.cpen511_optimize import set_num_gpu_blocks
+        set_num_gpu_blocks(num_gpu_blocks)
 
         return num_gpu_blocks, num_cpu_blocks
 

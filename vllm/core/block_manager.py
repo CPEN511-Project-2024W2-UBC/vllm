@@ -144,7 +144,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
         if (self.num_total_gpu_blocks - num_required_blocks
                 < self.watermark_blocks):
             return AllocStatus.NEVER
-        if num_free_gpu_blocks - num_required_blocks - leave_free_blocks() >= self.watermark_blocks:
+        if num_free_gpu_blocks - num_required_blocks - leave_free_blocks(num_free_gpu_blocks) >= self.watermark_blocks:
         # if num_free_gpu_blocks - num_required_blocks >= self.watermark_blocks:
             return AllocStatus.OK
         else:
@@ -540,7 +540,7 @@ class SelfAttnBlockSpaceManager(BlockSpaceManager):
                 device) < num_blocks_touched:
             return AllocStatus.NEVER
         elif self.block_allocator.get_num_free_blocks(
-                device) - num_blocks_touched - leave_free_blocks() >= watermark_blocks:
+                device) - num_blocks_touched - leave_free_blocks(self.block_allocator.get_num_free_blocks(device)) >= watermark_blocks:
             return AllocStatus.OK
         else:
             return AllocStatus.LATER
