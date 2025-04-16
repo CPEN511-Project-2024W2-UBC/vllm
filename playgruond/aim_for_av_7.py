@@ -16,12 +16,12 @@ sampling_params = SamplingParams(temperature=0.8, top_p=0.95,  max_tokens=100)
 # facebook/opt-1.3b or facebook/opt-2.7b
 # llm = LLM(model="facebook/opt-125m", gpu_memory_utilization=0.011, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
 # llm = LLM(model="facebook/opt-125m", gpu_memory_utilization=0.15, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
-llm = LLM(model="facebook/opt-1.3b", gpu_memory_utilization=0.05, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
+# llm = LLM(model="facebook/opt-1.3b", gpu_memory_utilization=0.05, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
 # llm = LLM(model="facebook/opt-2.7b", gpu_memory_utilization=0.1, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
-# llm = LLM(model="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", gpu_memory_utilization=0.064, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
+llm = LLM(model="deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B", gpu_memory_utilization=0.064, max_model_len=384, preemption_mode="swap", scheduling_policy='priority')
 
 
-for factor in np.arange(2, 10, 0.2):
+for factor in np.arange(1.8, 7.5, 0.2):
     with open('config.log', 'w') as f:
         f.write(f'{factor}')
     # Generate texts from the prompts. The output is a list of RequestOutput objects
