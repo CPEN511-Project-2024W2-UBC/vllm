@@ -10,6 +10,10 @@ from the University of British Columbia
 
 This work is based on the implementatino of vllm open source project. The [original readme](Original_README.md) can be found in the same directory. The offical website of vllm is [here](https://vllm.ai/).
 
+Build the vLLM using the 
+```bash
+pip install -e .
+```
 ## Getting Started
 
 To install vllm, you can use the following command:
@@ -84,3 +88,18 @@ For pratical reason, we test $o \in [0,12]$ with step size $0.2$. The result can
 For the second search, we make the hypothesis that the we aviod swapping by controlling the number of sequences in the KV cache. 
 
 Let $N$ be the number of sequences in the KV cache, $b$ be the number of blocks in the KV cache. The average number of blocks in the KV cache is $b/N$. From observation, we see that average sequence length in these workloads are about 7.5 and average space needed for prompts are 2. Thus the search space is $[1.8, 7.5]$. The reset of the setting the same as [Naive Search 1](#naive-search)
+
+## Run the Sequence prediction 
+Go to the file of `vllm/cpen511/new_memery_predict/train_reg.py` and `vllm/cpen511/new_memery_predict/train_cls.py`, change the `file_path` variable to the data file which is at `vllm/cpen511/pure_sequence.csv` 
+You can change the `windows_size` and `mod` to check the accuracy.
+
+To run the classcification model:
+```bash
+python vllm/cpen511/new_memery_predict/train_cls.py
+```
+
+To run the regression model:
+```bash
+python vllm/cpen511/new_memery_predict/train_reg.py
+```
+
