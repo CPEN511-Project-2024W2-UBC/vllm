@@ -6,6 +6,18 @@ Presented by:
 
 from the University of British Columbia
 
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Getting Started](#getting-started)
+3. [Running the Code](#running-the-code)
+    - [Running Naive Search 2](#running-naive-search-2)
+    - [To Visualize All the Results](#to-visualize-all-the-results)
+    - [Gather Memory Operation Traces](#gather-memory-operation-traces)
+4. [Naive Search](#naive-search)
+5. [Naive Search 2](#naive-search-2)
+6. [Run the Sequence Prediction](#run-the-sequence-prediction)
+
 ## Introduction
 
 This work is based on the implementatino of vllm open source project. The [original readme](Original_README.md) can be found in the same directory. The offical website of vllm is [here](https://vllm.ai/).
