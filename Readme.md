@@ -50,9 +50,23 @@ This will generate 4 plots in the `playground` directory. The plots are:
 
 For [Naive Search 2](#running-naive-search-2), there must be some code modification, thus we need to:
 ``` bash
-git checkout TODOOOTOTOTOTOODODO!!!!!!!!!!!!!!!
+git checkout Naive2
 ```
 This will switch the code to the branch that contains the implementation of Naive Search 2. Then you can run the same command as above to run the test. The only difference is that now it searches for the maximum average space for the sequences in the KV cache. The search space is $[1.8, 7.5]$ and the step size is $0.2$.
+
+To see the default search on FB/opt-125m, you can run the following command:
+```bash
+cd playground # if you are not in the directory
+python aim_for_av_7.py
+```
+This will run the test with the default search space. The log files will be generated in the `playground` directory. The log files contain the same information as above.
+The only difference is that now it searches for the maximum average space for the sequences in the KV cache. The search space is $[1.8, 7.5]$ and the step size is $0.2$.
+
+To visualize the results, you can use the following command:
+```bash
+python visualize.py
+```
+This will generate 4 plots in the `playground` directory same as previous section.
 
 ### To visualize all the results
 `vllm/playgruond/plot_multiple.ipynb` contains the code to put all results in one plot. You can run the code in the notebook to generate the plots. Make sure the change `places_to_chack{}` to the directory where you put the log files. 
